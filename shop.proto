@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package shop;
+
+enum OrderStatus {
+  UNKNOWN = 0;
+  MAKING = 1;
+  IN_TRANSIT = 2;
+  DELIVERED = 3;
+}
+
+message PlaceOrderRequest {
+  string size = 1;
+  string color = 2;
+  string text = 3;
+}
+
+message PlaceOrderResponse { int32 order_id = 1; }
+
+message CheckStatusRequest { int32 order_id = 1; }
+
+message CheckStatusResponse { OrderStatus status = 1; }
+
+service ShopService {
+  rpc PlaceOrder(PlaceOrderRequest) returns (PlaceOrderResponse);
+  rpc CheckStatus(CheckStatusRequest) returns (CheckStatusResponse);
+}
