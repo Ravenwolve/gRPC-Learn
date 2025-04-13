@@ -42,19 +42,18 @@ public:
     std::cout << "Проверка статуса заказа #" << id << std::endl;
 
     OrderStatus status = OrderStatus::UNKNOWN;
-    OrderStatus next_status = OrderStatus::UNKNOWN;
     if (orders.contains(id)) {
-      OrderStatus status = orders[id];
+      status = orders[id];
       if (std::rand() % 3 == 0) {
         if (status == OrderStatus::MAKING)
-          next_status = OrderStatus::IN_TRANSIT;
-        if (status == OrderStatus::IN_TRANSIT)
-          next_status = OrderStatus::DELIVERED;
+          status = OrderStatus::IN_TRANSIT;
+        else if (status == OrderStatus::IN_TRANSIT)
+          status = OrderStatus::DELIVERED;
       }
+      orders[id] = status;
     }
-    status = next_status;
 
-    response->set_status(OrderStatus::IN_TRANSIT);
+    response->set_status(status);
     return Status::OK;
   }
 
