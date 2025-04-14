@@ -7,6 +7,9 @@
 #include "shop.pb.h"
 #include <grpcpp/grpcpp.h>
 
+#include <nlohmann/json.hpp>
+#include <fstream>
+
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
@@ -21,6 +24,37 @@ using shop::ShopService;
 
 class ShopServiceImpl final : public ShopService::Service {
 public:
+
+  ShopServiceImpl()
+  {
+    std::ifstream fin("/app/data/db.json");
+    if (!fin.is_open())
+      std::cout << "Первый запуск, базы данных ещё не было\n";
+    else
+    {
+      fin >> database;
+      fin.close();
+      for (const auto& [key, value]: database.items())
+      {
+        if (value.is_number_integer())
+          orders[std::stoi(key)] = static_cast<OrderStatus>(value.get<int>());
+      }
+    }
+  }
+
+  void SaveDatabase()
+  {
+    std::ofstream fout("/app/data/db.json");
+    database.clear();
+    for (const auto& [key, value]: orders)
+    {
+      database[key] = static_cast<int>(value);
+    }
+    fout << database;
+    std::cout << "База данных сохранена\n";
+    fout.close();
+  }
+
   Status PlaceOrder(ServerContext *context, const PlaceOrderRequest *request,
                     PlaceOrderResponse *response) override {
     static int order_counter = 1000;
@@ -33,6 +67,8 @@ public:
     orders[order_id] = OrderStatus::MAKING;
 
     response->set_order_id(order_id);
+
+    SaveDatabase();
     return Status::OK;
   }
 
@@ -58,6 +94,8 @@ public:
   }
 
   std::map<int, OrderStatus> orders;
+  nlohmann::json database;
+
 };
 
 void RunServer() {

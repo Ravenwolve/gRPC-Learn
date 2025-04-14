@@ -1,0 +1,1 @@
+sudo docker run -it -v /home/sklochkov/gRPC-Learn/docker-volumes:/app/data my-image

@@ -26,10 +26,13 @@ set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
 set(_REFLECTION gRPC::grpc++_reflection)
 set(_GRPC_GRPCPP gRPC::grpc++)
 
+find_package(nlohmann_json REQUIRED)
+
 target_link_libraries(${PROJECT_NAME}-server PRIVATE
   ${_REFLECTION}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
+  nlohmann_json::nlohmann_json
 )
 
 target_link_libraries(${PROJECT_NAME}-client PRIVATE
